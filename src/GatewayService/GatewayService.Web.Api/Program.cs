@@ -10,6 +10,7 @@ using GatewayService.Domain.Interfaces.Gateways;
 using GatewayService.Domain.Interfaces.Services;
 using GatewayService.Web.Api;
 using GatewayService.Web.Api.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,16 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://dev-pktdx0v0anbhhjfx.us.auth0.com/";
+        options.Audience = "https://library-api";
+        options.RequireHttpsMetadata = true;
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ValidationFilterAttribute>();
 
@@ -62,11 +73,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.Run();

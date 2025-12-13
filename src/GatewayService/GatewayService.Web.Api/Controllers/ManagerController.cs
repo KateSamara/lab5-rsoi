@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GatewayService.Web.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("/manage/health")]
 public class ManagerController : ControllerBase
 {

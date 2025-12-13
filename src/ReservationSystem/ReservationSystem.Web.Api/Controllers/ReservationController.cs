@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReservationSystem.Domain.Interfaces.Services;
 using ReservationSystem.Web.Dto;
@@ -17,6 +18,7 @@ public class ReservationController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(typeof(List<ReservationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetReservationsByUsernameAsync([FromHeader(Name = "X-User-Name")] string username)
@@ -27,6 +29,7 @@ public class ReservationController : ControllerBase
     }
 
     [HttpGet("{status}")]
+    [Authorize]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetReservationsCountByStatusAndUsernameAsync(
@@ -40,6 +43,7 @@ public class ReservationController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(List<ReservationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateReservationAsync([FromHeader(Name = "X-User-Name")] string username, [FromBody] ReservationCreateDto reservationCreateDto)
@@ -50,6 +54,7 @@ public class ReservationController : ControllerBase
     }
 
     [HttpPatch("{uuid}")]
+    [Authorize]
     [ProducesResponseType(typeof(List<ReservationDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -63,6 +68,7 @@ public class ReservationController : ControllerBase
     }
     
     [HttpDelete("{uuid}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteReservationAsync([FromRoute] Guid uuid)

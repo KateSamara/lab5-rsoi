@@ -10,11 +10,11 @@ public class RatingService(IRatingGateway ratingGateway) : IRatingService
 {
     private readonly IRatingGateway _ratingGateway = ratingGateway ?? throw new ArgumentNullException(nameof(ratingGateway));
 
-    public async Task<Rating> GetRatingsByUsernameAsync(string username)
+    public async Task<Rating> GetRatingsByUsernameAsync(string username, string accessToken)
     {
         try
         {
-            return await _ratingGateway.GetRatingsByUsernameAsync(username);
+            return await _ratingGateway.GetRatingsByUsernameAsync(username, accessToken);
         }
         catch (RatingServiceNotAvailableGatewayException)
         {

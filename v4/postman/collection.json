@@ -34,7 +34,12 @@
 							"type": "noauth"
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
@@ -59,21 +64,26 @@
 									"type": "text"
 								},
 								{
-									"key": "clientId",
+									"key": "client_id",
 									"value": "{{clientId}}",
 									"type": "text"
 								},
 								{
-									"key": "clientSecret",
+									"key": "client_secret",
 									"value": "{{clientSecret}}",
+									"type": "text"
+								},
+								{
+									"key": "audience",
+									"value": "{{audience}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{identityProviderUrl}}/oauth/token",
+							"raw": "https://{{identityProviderUrl}}/oauth/token",
 							"host": [
-								"{{identityProviderUrl}}"
+								"https://{{identityProviderUrl}}"
 							],
 							"path": [
 								"oauth",
@@ -866,6 +876,30 @@
 		{
 			"key": "authorizationToken",
 			"value": ""
+		},
+		{
+      		"key": "identityProviderUrl",
+      		"value": "dev-pktdx0v0anbhhjfx.us.auth0.com"
+   		},
+    	{
+      		"key": "username",
+      		"value": "testmax@example.com"
+    	},
+    	{
+      		"key": "password",
+      		"value": "TestMax123"
+    	},
+    	{
+      		"key": "clientId",
+      		"value": "gt26kIZnilRsdUcC3HLXZDefOy27TaR8"
+    	},
+    	{
+      		"key": "clientSecret",
+      		"value": "9L-5RzCveTQJVErG5rwGMbGxzYrK5mUeY3dbCp8o4PpNOmwxsj4gQd_zpiCgHk__"
+    	},
+		{
+			"key": "audience",
+			"value": "https://library-api"
 		}
 	]
 }

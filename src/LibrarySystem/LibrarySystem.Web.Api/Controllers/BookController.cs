@@ -1,6 +1,7 @@
 using LibrarySystem.Domain.Interfaces.Services;
 using LibrarySystem.Web.Dto;
 using LibrarySystem.Web.Dto.Converters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibrarySystem.Web.Api.Controllers;
@@ -17,6 +18,7 @@ public class BookController : ControllerBase
     }
     
     [HttpGet("ids")]
+    [Authorize]
     [ProducesResponseType(typeof(List<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLibrariesByIdsAsync([FromQuery] List<Guid> ids)

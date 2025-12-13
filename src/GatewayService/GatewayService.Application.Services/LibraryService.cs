@@ -11,11 +11,11 @@ public class LibraryService(ILibraryGateway libraryGateway) : ILibraryService
 {
     private readonly ILibraryGateway _libraryGateway = libraryGateway ?? throw new ArgumentNullException(nameof(libraryGateway));
 
-    public async Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city)
+    public async Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city, string accessToken)
     {
         try
         {
-            return await _libraryGateway.GetLibrariesByCityPagedAsync(page, size, city);
+            return await _libraryGateway.GetLibrariesByCityPagedAsync(page, size, city, accessToken);
         }
         catch (LibraryServiceNotAvailableGatewayException)
         {
@@ -29,11 +29,11 @@ public class LibraryService(ILibraryGateway libraryGateway) : ILibraryService
         }
     }
 
-    public async Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll)
+    public async Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll, string accessToken)
     {
         try
         {
-            return await _libraryGateway.GetBooksPagedByLibraryUuid(libraryUid, page, size, showAll);
+            return await _libraryGateway.GetBooksPagedByLibraryUuid(libraryUid, page, size, showAll, accessToken);
         }
         catch (LibraryServiceNotAvailableGatewayException)
         {

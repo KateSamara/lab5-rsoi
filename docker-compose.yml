@@ -1,0 +1,110 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: postgres
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+      - ./postgres/:/docker-entrypoint-initdb.d/
+      - ./postgres/scripts/:/docker-entrypoint-initdb.d/scripts/
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ratings"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - test-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    ports:
+      - "8081:8080"
+    command: start-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  library-system:
+    build:
+      context: .
+      dockerfile: library.dockerfile
+    container_name: library-system
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DOCKER_CONNECTION_STRING=Host=postgres;Port=5432;Database=libraries;Username=program;Password=test
+      - ASPNETCORE_HTTP_PORTS=8060
+    networks:
+      - test-network
+    ports:
+      - "8060:8060"
+
+  reservation-system:
+    build:
+      context: .
+      dockerfile: reservation.dockerfile
+    container_name: reservation-system
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DOCKER_CONNECTION_STRING=Host=postgres;Port=5432;Database=reservations;Username=program;Password=test
+      - ASPNETCORE_HTTP_PORTS=8070
+    networks:
+      - test-network
+    ports:
+      - "8070:8070"
+
+  rating-system:
+    build:
+      context: .
+      dockerfile: rating.dockerfile
+    container_name: rating-system
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DOCKER_CONNECTION_STRING=Host=postgres;Port=5432;Database=ratings;Username=program;Password=test
+      - ASPNETCORE_HTTP_PORTS=8050
+    networks:
+      - test-network
+    ports:
+      - "8050:8050"
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: gateway.dockerfile
+    container_name: gateway-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+    networks:
+      - test-network
+    ports:
+      - "8080:8080"
+
+networks:
+  test-network:
+    driver: bridge

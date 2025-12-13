@@ -1,6 +1,6 @@
 {
   "id": "acc90f86-88ad-444e-924e-6f48f6ee7711",
-  "name": "[rsoi][lab5] Flight Service",
+  "name": "[rsoi][lab5] Library System",
   "values": [
     {
       "key": "serviceUrl",
@@ -9,27 +9,27 @@
     },
     {
       "key": "identityProviderUrl",
-      "value": "",
+      "value": "dev-pktdx0v0anbhhjfx.us.auth0.com",
       "enabled": true
     },
     {
       "key": "username",
-      "value": "",
+      "value": "testmax@example.com",
       "enabled": true
     },
     {
       "key": "password",
-      "value": "",
+      "value": "TestMax123",
       "enabled": true
     },
     {
       "key": "clientId",
-      "value": "",
+      "value": "gt26kIZnilRsdUcC3HLXZDefOy27TaR8",
       "enabled": true
     },
     {
       "key": "clientSecret",
-      "value": "",
+      "value": "9L-5RzCveTQJVErG5rwGMbGxzYrK5mUeY3dbCp8o4PpNOmwxsj4gQd_zpiCgHk__",
       "enabled": true
     }
   ],

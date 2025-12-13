@@ -20,10 +20,10 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         librarySystemConfiguration.Value ?? throw new ArgumentNullException(nameof(librarySystemConfiguration));
     private readonly CircuitBreaker<LibraryGateway> _libraryCircuitBreaker = libraryCircuitBreaker ?? throw new ArgumentNullException(nameof(libraryCircuitBreaker));
     
-    public async Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city)
+    public async Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city, string accessToken)
     {
         return await _libraryCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetLibrariesByCityPagedAsync(page, size, city),
+            action: async () => await CallGetLibrariesByCityPagedAsync(page, size, city, accessToken),
             fallbackAction: () =>
             {
                 Console.WriteLine("Library service is unavailable.");
@@ -33,7 +33,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         );
     }
     
-    private async Task<LibraryPaged> CallGetLibrariesByCityPagedAsync(int page, int size, string city)
+    private async Task<LibraryPaged> CallGetLibrariesByCityPagedAsync(int page, int size, string city, string accessToken)
     {
         try
         {
@@ -42,6 +42,8 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_librarySystemConfiguration.IpAddress}/{_librarySystemConfiguration.BaseUrl}" +
                 $"?page={page}&size={size}&city={city}");
+            
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
         
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -58,10 +60,10 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         }
     }
 
-    public async Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll)
+    public async Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll, string accessToken)
     {
         return await _libraryCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetBooksPagedByLibraryUuid(libraryUid, page, size, showAll),
+            action: async () => await CallGetBooksPagedByLibraryUuid(libraryUid, page, size, showAll, accessToken),
             fallbackAction: () =>
             {
                 Console.WriteLine("Library service is unavailable.");
@@ -71,7 +73,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         );
     }
 
-    private async Task<BookPaged> CallGetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll)
+    private async Task<BookPaged> CallGetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll, string accessToken)
     {
         try
         {
@@ -80,7 +82,8 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_librarySystemConfiguration.IpAddress}/{_librarySystemConfiguration.BaseUrl}/" +
                 $"{libraryUid}/{_librarySystemConfiguration.GetBooksSuffix}?page={page}&size={size}&showAll={showAll}");
-        
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
@@ -96,7 +99,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         }
     }
 
-    public async Task<LibraryBook> UpdateAvailableBooksCount(Guid bookUuid, Guid libraryUuid, bool isIncrease)
+    public async Task<LibraryBook> UpdateAvailableBooksCount(Guid bookUuid, Guid libraryUuid, bool isIncrease, string accessToken)
     {
         try
         {
@@ -105,6 +108,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
             using var request = new HttpRequestMessage(HttpMethod.Patch,
                 $"{_librarySystemConfiguration.IpAddress}/{_librarySystemConfiguration.BaseUrl}/" +
                 $"{libraryUuid}/{_librarySystemConfiguration.GetBooksSuffix}/{bookUuid}?isIncrease={isIncrease}");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -121,10 +125,10 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         }
     }
 
-    public async Task<List<Book>> GetBooksByIdsAsync(List<Guid> bookUuids)
+    public async Task<List<Book>> GetBooksByIdsAsync(List<Guid> bookUuids, string accessToken)
     {
         return await _libraryCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetBooksByIdsAsync(bookUuids),
+            action: async () => await CallGetBooksByIdsAsync(bookUuids, accessToken),
             fallbackAction: () => Task.FromResult(
                 bookUuids.Select(bookUuid => new Book
                 {
@@ -140,7 +144,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         );
     }
 
-    private async Task<List<Book>> CallGetBooksByIdsAsync(List<Guid> bookUuids)
+    private async Task<List<Book>> CallGetBooksByIdsAsync(List<Guid> bookUuids, string accessToken)
     {
         try
         {
@@ -148,6 +152,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
             
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_librarySystemConfiguration.IpAddress}/{_librarySystemConfiguration.BaseBookUrl}/{_librarySystemConfiguration.SearchByIdsSuffix}{BuildPartUrlWithIds(bookUuids)}");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
@@ -163,10 +168,10 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         }
     }
 
-    public async Task<List<Library>> GetLibrariesByIdsAsync(List<Guid> libraryUuids)
+    public async Task<List<Library>> GetLibrariesByIdsAsync(List<Guid> libraryUuids, string accessToken)
     {
         return await _libraryCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetLibrariesByIdsAsync(libraryUuids),
+            action: async () => await CallGetLibrariesByIdsAsync(libraryUuids, accessToken),
             fallbackAction: () => Task.FromResult(
                 libraryUuids.Select(libraryUuid => new Library
                 {
@@ -180,7 +185,7 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
         );
     }
 
-    private async Task<List<Library>> CallGetLibrariesByIdsAsync(List<Guid> libraryUuids)
+    private async Task<List<Library>> CallGetLibrariesByIdsAsync(List<Guid> libraryUuids, string accessToken)
     {
         try
         {
@@ -188,6 +193,8 @@ public class LibraryGateway(IOptions<LibrarySystemConfiguration> librarySystemCo
             
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_librarySystemConfiguration.IpAddress}/{_librarySystemConfiguration.BaseUrl}/{_librarySystemConfiguration.SearchByIdsSuffix}{BuildPartUrlWithIds(libraryUuids)}");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();

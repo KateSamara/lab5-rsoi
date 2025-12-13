@@ -31,7 +31,7 @@ public class RatingWorker(IRatingGateway ratingGateway, TaskQueue<RatingTask> ra
                         starDifference -= 10;
                 }
                 
-                await _ratingGateway.UpdateRatingAsync(task.Username, starDifference);
+                await _ratingGateway.UpdateRatingAsync(task.Username, starDifference, task.AccessToken);
                 
                 Console.WriteLine("Rating was updated successfully");
             }

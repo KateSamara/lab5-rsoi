@@ -18,7 +18,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
     private readonly ReservationSystemConfiguration _reservationSystemConfiguration = reservationSystemConfiguration.Value ?? throw new ArgumentNullException(nameof(reservationSystemConfiguration));
     private readonly CircuitBreaker<ReservationGateway> _reservationCircuitBreaker = circuitBreaker ?? throw new ArgumentNullException(nameof(circuitBreaker));
     
-    public async Task<int> GetCurrentReservationsCountByUsernameAsync(string username)
+    public async Task<int> GetCurrentReservationsCountByUsernameAsync(string username, string accessToken)
     {
         try
         {
@@ -27,6 +27,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_reservationSystemConfiguration.IpAddress}/{_reservationSystemConfiguration.BaseUrl}/RENTED");
             request.Headers.Add(_reservationSystemConfiguration.UsernameHeader, username);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -43,7 +44,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
         }
     }
 
-    public async Task<ReservationShort> AddReservationAsync(string username, ReservationCreate reservationCreate)
+    public async Task<ReservationShort> AddReservationAsync(string username, ReservationCreate reservationCreate, string accessToken)
     {
         try
         {
@@ -55,6 +56,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
                 $"{_reservationSystemConfiguration.IpAddress}/{_reservationSystemConfiguration.BaseUrl}");
             request.Headers.Add(_reservationSystemConfiguration.UsernameHeader, username);
             request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -71,10 +73,10 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
         }
     }
 
-    public async Task<List<ReservationShort>> GetReservationsByUsernameAsync(string username)
+    public async Task<List<ReservationShort>> GetReservationsByUsernameAsync(string username, string accessToken)
     {
         return await _reservationCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetReservationsByUsernameAsync(username),
+            action: async () => await CallGetReservationsByUsernameAsync(username, accessToken),
             fallbackAction: () =>
             {
                 Console.WriteLine("Reservation service is unavailable.");
@@ -84,7 +86,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
         );
     }
 
-    private async Task<List<ReservationShort>> CallGetReservationsByUsernameAsync(string username)
+    private async Task<List<ReservationShort>> CallGetReservationsByUsernameAsync(string username, string accessToken)
     {
         try
         {
@@ -93,6 +95,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_reservationSystemConfiguration.IpAddress}/{_reservationSystemConfiguration.BaseUrl}");
             request.Headers.Add(_reservationSystemConfiguration.UsernameHeader, username);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -109,7 +112,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
         }
     }
 
-    public async Task<ReservationShort?> DeleteReservationAsync(Guid reservationId, DateOnly date)
+    public async Task<ReservationShort?> DeleteReservationAsync(Guid reservationId, DateOnly date, string accessToken)
     {
         try
         {
@@ -118,6 +121,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
             using var request = new HttpRequestMessage(HttpMethod.Patch,
                 $"{_reservationSystemConfiguration.IpAddress}/{_reservationSystemConfiguration.BaseUrl}/{reservationId}" +
                 $"?returnDate={date.ToString("yyyy.MM.dd")}");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -136,7 +140,7 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
         }
     }
 
-    public async Task DeleteReservationAsync(Guid reservationId)
+    public async Task DeleteReservationAsync(Guid reservationId, string accessToken)
     {
         try
         {
@@ -144,7 +148,8 @@ public class ReservationGateway(IOptions<ReservationSystemConfiguration> reserva
             
             using var request = new HttpRequestMessage(HttpMethod.Delete,
                 $"{_reservationSystemConfiguration.IpAddress}/{_reservationSystemConfiguration.BaseUrl}/{reservationId}");
-
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
         }

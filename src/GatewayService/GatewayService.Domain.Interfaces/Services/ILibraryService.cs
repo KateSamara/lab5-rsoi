@@ -5,7 +5,7 @@ namespace GatewayService.Domain.Interfaces.Services;
 
 public interface ILibraryService
 {
-    public Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city); 
+    public Task<LibraryPaged> GetLibrariesByCityPagedAsync(int page, int size, string city, string accessToken); 
     
-    public Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll);
+    public Task<BookPaged> GetBooksPagedByLibraryUuid(Guid libraryUid, int page, int size, bool showAll, string accessToken);
 }

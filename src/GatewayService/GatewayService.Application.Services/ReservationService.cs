@@ -23,30 +23,30 @@ public class ReservationService(IReservationGateway reservationGateway,
     private readonly TaskQueue<LibraryTask> _libraryQueue = libraryQueue ?? throw new ArgumentNullException(nameof(libraryQueue));
     private readonly TaskQueue<RatingTask> _ratingTask = ratingTask ?? throw new ArgumentNullException(nameof(ratingTask));
     
-    public async Task<Reservation?> CreateReservationAsync(string username, ReservationCreate reservationCreate)
+    public async Task<Reservation?> CreateReservationAsync(string username, ReservationCreate reservationCreate, string accessToken)
     {
         try
         {
             var currentReservationsCount =
-                await _reservationGateway.GetCurrentReservationsCountByUsernameAsync(username);
+                await _reservationGateway.GetCurrentReservationsCountByUsernameAsync(username, accessToken);
 
-            var rating = await _ratingGateway.GetRatingsByUsernameAsync(username);
+            var rating = await _ratingGateway.GetRatingsByUsernameAsync(username, accessToken);
 
             if (currentReservationsCount >= rating.Stars)
                 return null;
 
-            var newReservation = await _reservationGateway.AddReservationAsync(username, reservationCreate);
+            var newReservation = await _reservationGateway.AddReservationAsync(username, reservationCreate, accessToken);
 
             LibraryBook libraryBook;
 
             try
             {
                 libraryBook = await _libraryGateway.UpdateAvailableBooksCount(reservationCreate.BookUuid,
-                    reservationCreate.LibraryUuid, false);
+                    reservationCreate.LibraryUuid, false, accessToken);
             }
             catch (LibraryServiceNotAvailableGatewayException e)
             {
-                await _reservationGateway.DeleteReservationAsync(newReservation.ReservationUuid);
+                await _reservationGateway.DeleteReservationAsync(newReservation.ReservationUuid, accessToken);
                 throw new LibraryServiceNotAvailableServiceException("Library Service not available.", e);
             }
 
@@ -73,17 +73,17 @@ public class ReservationService(IReservationGateway reservationGateway,
         }
     }
 
-    public async Task<List<Reservation>> GetReservationsByUsernameAsync(string username)
+    public async Task<List<Reservation>> GetReservationsByUsernameAsync(string username, string accessToken)
     {
         try
         {
-            var reservations = await _reservationGateway.GetReservationsByUsernameAsync(username);
+            var reservations = await _reservationGateway.GetReservationsByUsernameAsync(username, accessToken);
             
             var bookUuids = reservations.Select(r => r.BookUuid).Distinct().ToList();
             var libraryUuids = reservations.Select(r => r.LibraryUuid).Distinct().ToList();
             
-            var books = await _libraryGateway.GetBooksByIdsAsync(bookUuids);
-            var libraries = await _libraryGateway.GetLibrariesByIdsAsync(libraryUuids);
+            var books = await _libraryGateway.GetBooksByIdsAsync(bookUuids, accessToken);
+            var libraries = await _libraryGateway.GetLibrariesByIdsAsync(libraryUuids, accessToken);
             
             List<Reservation> reservationsFull = [];
             reservationsFull.AddRange(reservations.Select(reservation => 
@@ -109,11 +109,11 @@ public class ReservationService(IReservationGateway reservationGateway,
         }
     }
 
-    public async Task<bool> DeleteReservationAsync(string username, Guid reservationId, ReservationDelete reservationDelete)
+    public async Task<bool> DeleteReservationAsync(string username, Guid reservationId, ReservationDelete reservationDelete, string accessToken)
     {
         try
         {
-            var reservation = await _reservationGateway.DeleteReservationAsync(reservationId, reservationDelete.Date);
+            var reservation = await _reservationGateway.DeleteReservationAsync(reservationId, reservationDelete.Date, accessToken);
             if (reservation is null)
                 return false;
 
@@ -123,7 +123,8 @@ public class ReservationService(IReservationGateway reservationGateway,
             {
                 libraryBook =
                     await _libraryGateway.UpdateAvailableBooksCount(reservation.BookUuid, reservation.LibraryUuid,
-                        true);
+                        true,
+                        accessToken);
             }
             catch (LibraryServiceNotAvailableGatewayException)
             {
@@ -131,7 +132,8 @@ public class ReservationService(IReservationGateway reservationGateway,
                 {
                     Username = username,
                     Reservation = reservation,
-                    ReservationDelete = reservationDelete
+                    ReservationDelete = reservationDelete,
+                    AccessToken = accessToken
                 });
                 Console.WriteLine("Failed to connect to library service");
                 return true;
@@ -139,7 +141,7 @@ public class ReservationService(IReservationGateway reservationGateway,
 
             try
             {
-                await UpdateRatingAsync(username, reservation.Status, libraryBook.Book.Condition, reservationDelete.Condition);
+                await UpdateRatingAsync(username, reservation.Status, libraryBook.Book.Condition, reservationDelete.Condition, accessToken);
             }
             catch (RatingServiceNotAvailableServiceException)
             {
@@ -148,7 +150,8 @@ public class ReservationService(IReservationGateway reservationGateway,
                     Username = username,
                     Status = reservation.Status,
                     OldCondition = libraryBook.Book.Condition,
-                    NewCondition = reservationDelete.Condition
+                    NewCondition = reservationDelete.Condition,
+                    AccessToken = accessToken
                 });
                 Console.WriteLine("Failed to connect to rating service");
             }
@@ -167,7 +170,7 @@ public class ReservationService(IReservationGateway reservationGateway,
         }
     }
 
-    private async Task UpdateRatingAsync(string username, string status, string oldCondition, string newCondition)
+    private async Task UpdateRatingAsync(string username, string status, string oldCondition, string newCondition, string accessToken)
     {
         try
         {
@@ -184,7 +187,7 @@ public class ReservationService(IReservationGateway reservationGateway,
                     starDifference -= 10;
             }
 
-            await _ratingGateway.UpdateRatingAsync(username, starDifference);
+            await _ratingGateway.UpdateRatingAsync(username, starDifference, accessToken);
         }
         catch (RatingServiceNotAvailableGatewayException e)
         {

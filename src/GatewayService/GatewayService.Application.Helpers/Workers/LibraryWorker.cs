@@ -21,7 +21,7 @@ public class LibraryWorker(TaskQueue<LibraryTask> libraryQueue, ILibraryGateway 
             try
             {
                 var libraryBook = await _libraryGateway.UpdateAvailableBooksCount(task.Reservation.BookUuid,
-                    task.Reservation.LibraryUuid, true);
+                    task.Reservation.LibraryUuid, true, task.AccessToken);
 
                 Console.WriteLine("Book available count was updated successfully");
                 
@@ -31,6 +31,7 @@ public class LibraryWorker(TaskQueue<LibraryTask> libraryQueue, ILibraryGateway 
                     Status = task.Reservation.Status,
                     OldCondition = libraryBook.Book.Condition,
                     NewCondition = task.ReservationDelete.Condition,
+                    AccessToken = task.AccessToken
                 });
             }
             catch (Exception)

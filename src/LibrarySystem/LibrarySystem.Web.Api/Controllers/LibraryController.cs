@@ -4,6 +4,7 @@ using LibrarySystem.Domain.Models.Books;
 using LibrarySystem.Domain.Models.Libraries;
 using LibrarySystem.Web.Dto;
 using LibrarySystem.Web.Dto.Converters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibrarySystem.Web.Api.Controllers;
@@ -20,6 +21,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(typeof(LibraryPagedDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLibrariesPagedAsync([FromQuery] int page,
@@ -39,6 +41,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpGet("{libraryUid}/books")]
+    [Authorize]
     [ProducesResponseType(typeof(BookPagedDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBooksPagedByLibraryUuid([FromRoute] Guid libraryUid,
@@ -60,6 +63,7 @@ public class LibraryController : ControllerBase
     }
     
     [HttpGet("ids")]
+    [Authorize]
     [ProducesResponseType(typeof(List<LibraryDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLibrariesByIdsAsync([FromQuery] List<Guid> ids)
@@ -70,6 +74,7 @@ public class LibraryController : ControllerBase
     }
 
     [HttpPatch("{libraryUid}/books/{bookUid}")]
+    [Authorize]
     [ProducesResponseType(typeof(LibraryBookDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateBookCountAsync([FromRoute] Guid libraryUid, [FromRoute] Guid bookUid,

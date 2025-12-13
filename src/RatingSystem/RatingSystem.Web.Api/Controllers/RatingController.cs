@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RatingSystem.Domain.Interfaces.Services;
 using RatingSystem.Web.Dto;
@@ -17,6 +18,7 @@ public class RatingController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(typeof(RatingDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetRatingByUsernameAsync([FromHeader(Name = "X-User-Name")] string username)
@@ -27,6 +29,7 @@ public class RatingController : ControllerBase
     }
 
     [HttpPatch]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateRatingAsync([FromHeader(Name = "X-User-Name")] string username,

@@ -7,4 +7,5 @@ public record LibraryTask
     public required string Username { get; init; }
     public required ReservationShort Reservation { get; init; }
     public required ReservationDelete ReservationDelete { get; init; }
+    public required string AccessToken { get; init; }
 }

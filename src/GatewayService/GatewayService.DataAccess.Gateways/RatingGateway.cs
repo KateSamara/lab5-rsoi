@@ -16,10 +16,10 @@ public class RatingGateway(IOptions<RatingSystemConfiguration> ratingSystemConfi
     private readonly RatingSystemConfiguration _ratingSystemConfiguration = ratingSystemConfiguration.Value ?? throw new ArgumentNullException(nameof(ratingSystemConfiguration));
     private readonly CircuitBreaker<RatingGateway> _ratingCircuitBreaker = circuitBreaker ?? throw new ArgumentNullException(nameof(circuitBreaker));
 
-    public async Task<Rating> GetRatingsByUsernameAsync(string username)
+    public async Task<Rating> GetRatingsByUsernameAsync(string username, string accessToken)
     {
         return await _ratingCircuitBreaker.ExecuteAsync(
-            action: async () => await CallGetRatingsByUsernameAsync(username),
+            action: async () => await CallGetRatingsByUsernameAsync(username, accessToken),
             fallbackAction: () =>
             {
                 Console.WriteLine("Rating service is unavailable.");
@@ -29,7 +29,7 @@ public class RatingGateway(IOptions<RatingSystemConfiguration> ratingSystemConfi
         );
     }
     
-    private async Task<Rating> CallGetRatingsByUsernameAsync(string username)
+    private async Task<Rating> CallGetRatingsByUsernameAsync(string username, string accessToken)
     {
         try
         {
@@ -38,6 +38,7 @@ public class RatingGateway(IOptions<RatingSystemConfiguration> ratingSystemConfi
             using var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{_ratingSystemConfiguration.IpAddress}/{_ratingSystemConfiguration.BaseUrl}");
             request.Headers.Add(_ratingSystemConfiguration.UsernameHeader, username);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -54,7 +55,7 @@ public class RatingGateway(IOptions<RatingSystemConfiguration> ratingSystemConfi
         }
     }
 
-    public async Task UpdateRatingAsync(string username, int starDifference)
+    public async Task UpdateRatingAsync(string username, int starDifference, string accessToken)
     {
         try
         {
@@ -63,6 +64,7 @@ public class RatingGateway(IOptions<RatingSystemConfiguration> ratingSystemConfi
             using var request = new HttpRequestMessage(HttpMethod.Patch,
                 $"{_ratingSystemConfiguration.IpAddress}/{_ratingSystemConfiguration.BaseUrl}?starDifference={starDifference}");
             request.Headers.Add(_ratingSystemConfiguration.UsernameHeader, username);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();

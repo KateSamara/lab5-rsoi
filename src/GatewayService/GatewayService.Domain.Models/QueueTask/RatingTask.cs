@@ -6,4 +6,5 @@ public record RatingTask
     public required string Status { get; init; }
     public required string OldCondition { get; init; }
     public required string NewCondition { get; init; }
+    public required string AccessToken { get; init; }
 }

@@ -27,7 +27,7 @@ public class InitializeDatabaseJob(IRatingRepository ratingRepository)
         {
             Id = 1,
             Stars = 75,
-            Username = "Test Max"
+            Username = "auth0|693d4849af5c6dc323bbd1cc"
         };
         
         await _ratingRepository.AddRatingAsync(rating);
