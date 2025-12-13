@@ -9,7 +9,7 @@ service:
 
 env:
   - name: DOCKER_CONNECTION_STRING
-    value: "Host=postgres;Port=5432;Database=reservations;Username=postgres;Password=postgres"
+    value: "Host=postgres1;Port=5432;Database=reservations;Username=postgres;Password=postgres"
   - name: ASPNETCORE_HTTP_PORTS
     value: 8070
 
