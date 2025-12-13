@@ -45,13 +45,9 @@ public class RatingRepository(RatingSystemContext context) : IRatingRepository
     {
         try
         {
-            int id;
-            if (await _context.Ratings.CountAsync() == 0)
-                id = 1;
-            else
-                id = _context.Ratings.Max(r => r.Id) + 1;
+            await _context.Ratings.ExecuteDeleteAsync();
             
-            var ratingDb = rating.ToDb(id);
+            var ratingDb = rating.ToDb(1);
             await _context.Ratings.AddAsync(ratingDb);
             await _context.SaveChangesAsync();
         }

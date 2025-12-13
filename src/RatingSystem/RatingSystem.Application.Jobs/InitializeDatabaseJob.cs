@@ -11,8 +11,7 @@ public class InitializeDatabaseJob(IRatingRepository ratingRepository)
     {
         try
         {
-            if (await _ratingRepository.GetRatingCountAsync() == 0)
-                await InitRatingAsync();
+            await InitRatingAsync();
         }
         catch (Exception e)
         {
