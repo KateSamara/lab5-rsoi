@@ -145,11 +145,13 @@ jobs:
           cat port-forward.log
           exit 1
 
-      - name: Give rights
-        run: chmod +x ./scripts/test-script.sh
-
-      - name: Autograding
-        uses: education/autograding@v1
+      - name: Run API Tests
+        uses: matt-ball/newman-action@master
+        with:
+          collection: v4/postman/collection.json
+          environment: v4/postman/environment.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'
 
       - name: Stop port-forward
         if: always()
