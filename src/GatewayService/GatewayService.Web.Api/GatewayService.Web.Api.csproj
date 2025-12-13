@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>GatewayService.Web.Api</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.13"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GatewayService.Application.Helpers\GatewayService.Application.Helpers.csproj" />
+      <ProjectReference Include="..\GatewayService.Application.Services\GatewayService.Application.Services.csproj" />
+      <ProjectReference Include="..\GatewayService.DataAccess.Gateways\GatewayService.DataAccess.Gateways.csproj" />
+      <ProjectReference Include="..\GatewayService.Domain.Models\GatewayService.Domain.Models.csproj" />
+      <ProjectReference Include="..\GatewayService.Web.Dto\GatewayService.Web.Dto.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,32 @@
+fullnameOverride: reservation-system
+
+image:
+  repository: ""
+  tag: "latest"
+
+service:
+  port: 8070
+
+env:
+  - name: DOCKER_CONNECTION_STRING
+    value: "Host=postgres;Port=5432;Database=reservations;Username=postgres;Password=postgres"
+  - name: ASPNETCORE_HTTP_PORTS
+    value: 8070
+
+livenessProbe:
+  httpGet:
+    path: /manage/health
+    port: 8070
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /manage/health
+    port: 8070
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 4
