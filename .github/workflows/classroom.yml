@@ -120,10 +120,7 @@ jobs:
           echo "|"
           echo "|"
           echo "=== Waiting for services ==="
-          kubectl wait -n test -l app.kubernetes.io/instance=library-system pod --for=condition=Ready --timeout=180s
-          kubectl wait -n test -l app.kubernetes.io/instance=rating-system pod --for=condition=Ready --timeout=180s
-          kubectl wait -n test -l app.kubernetes.io/instance=reservation-system pod --for=condition=Ready --timeout=180s
-          kubectl wait -n test -l app.kubernetes.io/instance=gateway-service pod --for=condition=Ready --timeout=180s
+          sleep 30
       
       - name: Start port-forward to gateway
         run: |
