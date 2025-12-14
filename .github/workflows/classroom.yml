@@ -151,7 +151,6 @@ jobs:
           reporters: '[ "cli" ]'
 
       - uses: education/autograding@v1
-        id: autograder
         continue-on-error: true
 
       - name: Stop port-forward
