@@ -150,6 +150,10 @@ jobs:
           delayRequest: 100
           reporters: '[ "cli" ]'
 
+      - uses: education/autograding@v1
+        id: autograder
+        continue-on-error: true
+
       - name: Stop port-forward
         if: always()
         run: |
