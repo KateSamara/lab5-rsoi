@@ -1,13 +1,13 @@
 {
   "tests": [
     {
-      "name": "Run Test Script",
+      "name": "Run Postman",
       "setup": "",
-      "run": "./scripts/test-script.sh v4 rating-system test",
+      "run": "newman run -e v4/postman/environment.json v4/postman/collection.json",
       "input": "",
       "output": "",
       "comparison": "included",
-      "timeout": 60,
+      "timeout": 10,
       "points": 10
     }
   ]
